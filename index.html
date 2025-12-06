@@ -93,6 +93,12 @@
     <div id="pantallaIngreso" class="fade" style="display:none;">
       <h6 class="text-center mb-3">Escribe tu nombre</h6>
       <input type="text" id="nombreInput" class="form-control mb-3" placeholder="Tu nombre">
+      <textarea 
+        id="interesesInput" 
+        class="form-control mb-3" 
+        rows="3"
+        placeholder="Escribe tus gustos, hobbies, colores favoritos, etc..."
+      ></textarea>
       <button class="btn btn-secondary w-100" onclick="obtenerAmigo()">Ver mi amigo secreto</button>
       <p class="text-danger text-center mt-2" id="error"></p>
     </div>
@@ -139,10 +145,11 @@
 
     async function obtenerAmigo() {
       const nombre = document.getElementById("nombreInput").value.trim();
+      const intereses = document.getElementById("interesesInput").value.trim();
       const error = document.getElementById("error");
 
-      if (!nombre) {
-        error.textContent = "Debes escribir tu nombre";
+      if (!nombre || !intereses) {
+        error.textContent = "Debes escribir tu nombre y tus intereses";
         return;
       }
 
@@ -150,7 +157,7 @@
         const respuesta = await fetch(`${API_URL}/participar`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre })
+          body: JSON.stringify({ nombre, intereses })
         });
 
         const data = await respuesta.json();
@@ -161,7 +168,7 @@
         }
 
         const resultado = document.getElementById("resultado");
-        resultado.textContent = data.amigo;
+        resultado.textContent = data.amigo, data.intereses;
         resultado.classList.remove("animar");
         void resultado.offsetWidth;
         resultado.classList.add("animar");
