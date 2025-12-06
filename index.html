@@ -4,51 +4,63 @@
   <meta charset="UTF-8">
   <title>Amigo Secreto</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
     body {
       background: linear-gradient(180deg, #0f5132 0%, #1b7a57 100%);
       min-height: 100vh;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
+
     .card {
       border-radius: 1rem;
       animation: aparecer 0.6s ease both;
     }
+
     .title {
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-    .muted { color: #6c757d; }
 
-    /* Animaciones suaves */
+    .muted {
+      color: #6c757d;
+    }
+
     .fade {
       animation: fadeSlide 0.4s ease both;
     }
 
     @keyframes fadeSlide {
       from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes aparecer {
       from { opacity: 0; transform: scale(0.97); }
-      to { opacity: 1; transform: scale(1); }
+      to   { opacity: 1; transform: scale(1); }
     }
 
-    /* Animación especial del resultado */
     .reveal {
       animation: revealZoom 0.6s ease both;
     }
 
     @keyframes revealZoom {
-      0% { opacity: 0; transform: scale(0.6); }
-      60% { opacity: 1; transform: scale(1.05); }
+      0%   { opacity: 0; transform: scale(0.6); }
+      60%  { opacity: 1; transform: scale(1.05); }
       100% { opacity: 1; transform: scale(1); }
     }
 
-      to { opacity: 1; transform: scale(1); }
+    .animar {
+      animation: revelar 0.9s ease-out;
+    }
 
+    @keyframes revelar {
+      0%   { opacity: 0; transform: scale(0.3); }
+      70%  { opacity: 1; transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
 
     button {
       transition: transform 0.15s ease, box-shadow 0.15s ease;
@@ -58,25 +70,9 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
-    .animar {
-  animation: revelar 0.9s ease-out;
-}
-
-@keyframes revelar {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  70% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
   </style>
 </head>
+
 <body class="d-flex align-items-center justify-content-center">
 
   <div class="card p-4 shadow" style="width: 100%; max-width: 420px;">
@@ -115,26 +111,26 @@
       <button class="btn btn-outline-secondary w-100" onclick="cerrarAdmin()">Cerrar</button>
     </div>
 
-      
     <!-- CONSEJO -->
-    <div class="alert alert-light mt-4 fade" role="alert" style="font-size: 0.9rem;">
-      Consejo: escribe tu primer nombre únicamente. Gracias ;pp  
+    <div class="alert alert-light mt-4 fade" style="font-size: 0.9rem;">
+      Consejo: escribe solo tu primer nombre 😉
     </div>
 
   </div>
 
   <script>
-    const API_URL = "hhttps://amigo-secreto-navidad-backend-production.up.railway.app/";
-    const CLAVE_ADMIN = "12345"; // clavesita de admin, tranquilos que no hay tarjeta de credito para robar.
+    // ✅ API REAL DE RAILWAY
+    const API_URL = "https://amigo-secreto-navidad-backend-production.up.railway.app";
+    const CLAVE_ADMIN = "12345";
 
     async function iniciarSorteo() {
       if (localStorage.getItem("bloqueado") === "true") {
         alert("Este dispositivo ya participó");
         return;
       }
+
       try {
-        const res = await fetch(`${API_URL}/sorteo`, { method: "POST" });
-        const data = await res.json();
+        await fetch(`${API_URL}/sorteo`, { method: "POST" });
         pantalla("pantallaIngreso");
       } catch (error) {
         alert("No se pudo contactar con el servidor");
@@ -142,77 +138,61 @@
     }
 
     async function obtenerAmigo() {
-  const nombre = document.getElementById("nombreInput").value.trim();
-  const error = document.getElementById("error");
+      const nombre = document.getElementById("nombreInput").value.trim();
+      const error = document.getElementById("error");
 
-  if (!nombre) {
-    error.textContent = "Debes escribir tu nombre";
-    return;
-  }
+      if (!nombre) {
+        error.textContent = "Debes escribir tu nombre";
+        return;
+      }
 
-  try {
-    const respuesta = await fetch("https://amigo-secreto-navidad-backend-production.up.railway.app/participar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ nombre })
-    });
+      try {
+        const respuesta = await fetch(`${API_URL}/participar`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre })
+        });
 
-    const data = await respuesta.json();
+        const data = await respuesta.json();
 
-    if (!respuesta.ok) {
-      error.textContent = data.error || "Error en el servidor";
-      return;
+        if (!respuesta.ok) {
+          error.textContent = data.error || "Error en el servidor";
+          return;
+        }
+
+        const resultado = document.getElementById("resultado");
+        resultado.textContent = data.amigo;
+        resultado.classList.remove("animar");
+        void resultado.offsetWidth;
+        resultado.classList.add("animar");
+
+        localStorage.setItem("bloqueado", "true");
+        pantalla("pantallaResultado");
+
+      } catch (err) {
+        console.error(err);
+        error.textContent = "No se pudo conectar al servidor";
+      }
     }
-
-    // ✅ MOSTRAR RESULTADO CON ANIMACIÓN
-    const resultado = document.getElementById("resultado");
-    resultado.textContent = data.amigo;
-    resultado.classList.remove("animar");
-    void resultado.offsetWidth; // reinicia animación
-    resultado.classList.add("animar");
-
-    // ✅ BLOQUEO LOCAL (NO PUEDE REINTENTAR)
-    localStorage.setItem("bloqueado", "true");
-
-    pantalla("pantallaResultado");
-
-  } catch (err) {
-    console.error(err);
-    error.textContent = "No se pudo conectar al servidor";
-  }
-}
-
-
- 
 
     function cerrarTurno() {
       document.getElementById("nombreInput").value = "";
-      document.getElementById("error").textContent = "";
       document.getElementById("nombreInput").disabled = true;
+      document.getElementById("error").textContent = "";
       pantalla("pantallaInicio");
     }
 
     function pantalla(id) {
-      [
-        "pantallaInicio",
-        "pantallaIngreso",
-        "pantallaResultado",
-        "pantallaAdmin"
-      ].forEach(p => document.getElementById(p).style.display = "none");
+      ["pantallaInicio","pantallaIngreso","pantallaResultado","pantallaAdmin"]
+        .forEach(p => document.getElementById(p).style.display = "none");
 
       document.getElementById(id).style.display = "block";
     }
 
-    // ADMIN
     function mostrarAdmin() {
       const clave = prompt("Ingresa la clave de administrador:");
-      if (clave === CLAVE_ADMIN) {
-        pantalla("pantallaAdmin");
-      } else {
-        alert("Clave incorrecta");
-      }
+      if (clave === CLAVE_ADMIN) pantalla("pantallaAdmin");
+      else alert("Clave incorrecta");
     }
 
     function cerrarAdmin() {
@@ -226,11 +206,13 @@
         const res = await fetch(`${API_URL}/reset`, { method: "POST" });
         const data = await res.json();
         alert(data.mensaje || "Sorteo reseteado");
+        localStorage.removeItem("bloqueado");
         pantalla("pantallaInicio");
       } catch (error) {
         alert("No se pudo resetear el sorteo");
       }
     }
   </script>
+
 </body>
 </html>
