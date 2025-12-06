@@ -12,22 +12,36 @@
   <!--acá mismos los estilos de una vez-->
   <style>
     body {
-      background: linear-gradient(135deg, #b31217, #f0c27b);
-      min-height: 100vh;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      min-height: 100vh;
+      background: url("./assets/fondo.jpg") no-repeat center;
+      background-size: cover;
+      min-height: 80vh;
       font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .card {
-      border-radius: 20px;
-      animation: aparecer 0.8s ease both;
+      position: relative;
+      z-index: 1;
       background: white;
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 30px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+      width: 100%;
+      max-width: 420px;
+      animation: aparecer 0.8s ease;
     }
+
+    /*para oscurecer la imagen*/
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 0;
+    }
+
 
     .title {
       letter-spacing: 0.08em;
@@ -130,14 +144,14 @@
 
     <!-- ADMIN -->
     <div class="text-end mb-2">
-      <button class="btn btn-sm btn-outline-secondary" onclick="mostrarAdmin()">Admin</button>
+      <button class="btn btn-sm btn-outline-danger" onclick="mostrarAdmin()">Admin</button>
     </div>
 
     <!-- INICIO -->
     <div id="pantallaInicio" class="fade">
       <h4 class="text-center mb-3 title">Amigo Secreto</h4>
       <p class="text-center muted">Ingresa tu nombre y descubre tu amigo secreto.</p>
-      <button class="btn btn-outline-dark w-100" onclick="iniciarSorteo()">Comenzar sorteo</button>
+      <button class="btn btn-success fw-semibold w-100" onclick="iniciarSorteo()">Comenzar sorteo</button>
     </div>
 
     <!-- INGRESO -->
@@ -158,7 +172,7 @@
     </div>
 
     <!-- Botón para ver a quien me tocó -->
-    <button class="btn btn-outline-success w-100 mt-2" onclick="verHistorial()">
+    <button class="btn btn-outline-secondary fw-semibold mb-3 w-100 mt-2" onclick="verHistorial()">
       Ver historial
     </button>
 
@@ -166,8 +180,8 @@
     <!-- ADMIN PANEL -->
     <div id="pantallaAdmin" class="fade" style="display:none;">
       <h6 class="text-center mb-3">Panel de administración</h6>
-      <button class="btn btn-warning w-100 mb-2" onclick="resetearTodo()">Resetear sorteo</button>
-      <button class="btn btn-outline-close w-100" onclick="cerrarAdmin()">Cerrar</button>
+      <button class="btn btn-danger w-100 mb-2" onclick="resetearTodo()">Resetear sorteo</button>
+      <button class="btn btn-outline-success w-100" onclick="cerrarAdmin()">Cerrar</button>
     </div>
 
     <!-- CONSEJO -->
