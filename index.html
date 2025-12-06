@@ -58,6 +58,23 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+    .animar {
+  animation: revelar 0.9s ease-out;
+}
+
+@keyframes revelar {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
   </style>
 </head>
 <body class="d-flex align-items-center justify-content-center">
@@ -107,10 +124,14 @@
   </div>
 
   <script>
-    const API_URL = "http://localhost:3000/api";
+    const API_URL = "hhttps://amigo-secreto-navidad-backend-production.up.railway.app/";
     const CLAVE_ADMIN = "12345"; // clavesita de admin, tranquilos que no hay tarjeta de credito para robar.
 
     async function iniciarSorteo() {
+      if (localStorage.getItem("bloqueado") === "true") {
+        alert("Este dispositivo ya participó");
+        return;
+      }
       try {
         const res = await fetch(`${API_URL}/sorteo`, { method: "POST" });
         const data = await res.json();
@@ -121,39 +142,48 @@
     }
 
     async function obtenerAmigo() {
-      const nombre = document.getElementById("nombreInput").value.trim();
-      const error = document.getElementById("error");
+  const nombre = document.getElementById("nombreInput").value.trim();
+  const error = document.getElementById("error");
 
-      if (!nombre) {
-        error.textContent = "Debes ingresar tu nombre";
-        return;
-      }
+  if (!nombre) {
+    error.textContent = "Debes escribir tu nombre";
+    return;
+  }
 
-      try {
-        const res = await fetch(`${API_URL}/amigo/${encodeURIComponent(nombre)}`);
-        const data = await res.json();
+  try {
+    const respuesta = await fetch("https://amigo-secreto-navidad-backend-production.up.railway.app/participar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ nombre })
+    });
 
-        if (data.error) {
-          error.textContent = data.error;
-          return;
-        }
+    const data = await respuesta.json();
 
-        const resultadoEl = document.getElementById("resultado");
-        resultadoEl.classList.remove("reveal");
-        void resultadoEl.offsetWidth; // reinicia animación
-        resultadoEl.textContent = data.amigo;
-        resultadoEl.classList.add("reveal");
-
-        error.textContent = "";
-        pantalla("pantallaResultado");
-
-        // 🔒 Cerrar inscripción en este dispositivo tras una participación
-        document.getElementById("nombreInput").disabled = true;
-
-      } catch (err) {
-        error.textContent = "Error de conexión con la base de datos";
-      }
+    if (!respuesta.ok) {
+      error.textContent = data.error || "Error en el servidor";
+      return;
     }
+
+    // ✅ MOSTRAR RESULTADO CON ANIMACIÓN
+    const resultado = document.getElementById("resultado");
+    resultado.textContent = data.amigo;
+    resultado.classList.remove("animar");
+    void resultado.offsetWidth; // reinicia animación
+    resultado.classList.add("animar");
+
+    // ✅ BLOQUEO LOCAL (NO PUEDE REINTENTAR)
+    localStorage.setItem("bloqueado", "true");
+
+    pantalla("pantallaResultado");
+
+  } catch (err) {
+    console.error(err);
+    error.textContent = "No se pudo conectar al servidor";
+  }
+}
+
 
  
 
