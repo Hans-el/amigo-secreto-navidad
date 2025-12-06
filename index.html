@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Amigo Secreto</title>
@@ -34,13 +35,27 @@
     }
 
     @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(8px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     @keyframes aparecer {
-      from { opacity: 0; transform: scale(0.97); }
-      to   { opacity: 1; transform: scale(1); }
+      from {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .reveal {
@@ -48,9 +63,20 @@
     }
 
     @keyframes revealZoom {
-      0%   { opacity: 0; transform: scale(0.6); }
-      60%  { opacity: 1; transform: scale(1.05); }
-      100% { opacity: 1; transform: scale(1); }
+      0% {
+        opacity: 0;
+        transform: scale(0.6);
+      }
+
+      60% {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     .animar {
@@ -58,9 +84,19 @@
     }
 
     @keyframes revelar {
-      0%   { opacity: 0; transform: scale(0.3); }
-      70%  { opacity: 1; transform: scale(1.1); }
-      100% { transform: scale(1); }
+      0% {
+        opacity: 0;
+        transform: scale(0.3);
+      }
+
+      70% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
     }
 
     button {
@@ -69,13 +105,13 @@
 
     button:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
+
     .swal2-popup {
       border-radius: 16px !important;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
-
   </style>
 </head>
 
@@ -99,12 +135,8 @@
     <div id="pantallaIngreso" class="fade" style="display:none;">
       <h6 class="text-center mb-3">Escribe tu nombre</h6>
       <input type="text" id="nombreInput" class="form-control mb-3" placeholder="Tu nombre">
-      <textarea 
-        id="interesesInput" 
-        class="form-control mb-3" 
-        rows="3"
-        placeholder="Escribe tus gustos, hobbies, colores favoritos, etc..."
-      ></textarea>
+      <textarea id="interesesInput" class="form-control mb-3" rows="3"
+        placeholder="Escribe tus gustos, hobbies, colores favoritos, etc..."></textarea>
       <button class="btn btn-secondary w-100" onclick="obtenerAmigo()">Ver mi amigo secreto</button>
       <p class="text-danger text-center mt-2" id="error"></p>
     </div>
@@ -133,7 +165,7 @@
   <script>
     // ✅ API REAL DE RAILWAY
     const API_URL = "https://amigo-secreto-navidad-backend-production.up.railway.app";
-    const CLAVE_ADMIN = "software"; 
+    const CLAVE_ADMIN = "software";
 
     async function iniciarSorteo() {
       if (localStorage.getItem("bloqueado") === "true") {
@@ -141,7 +173,7 @@
           icon: "info",
           title: "Ya participaste",
           text: "Este dispositivo ya usó su turno",
-        });      
+        });
         return;
       }
 
@@ -156,41 +188,72 @@
     async function obtenerAmigo() {
       const nombre = document.getElementById("nombreInput").value.trim();
       const intereses = document.getElementById("interesesInput").value.trim();
-      const error = document.getElementById("error");
 
       if (!nombre || !intereses) {
-        error.textContent = "Debes escribir tu nombre y tus intereses";
+        Swal.fire({
+          icon: "warning",
+          title: "Campos incompletos",
+          text: "Debes escribir tu nombre y tus intereses"
+        });
         return;
       }
 
       try {
         const respuesta = await fetch(`${API_URL}/participar`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json"
+          },
           body: JSON.stringify({ nombre, intereses })
         });
 
         const data = await respuesta.json();
 
         if (!respuesta.ok) {
-          error.textContent = data.error || "Error en el servidor";
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: data.error || "Error en el servidor"
+          });
           return;
         }
 
+        // ✅ MOSTRAR RESULTADO EN PANTALLA
         const resultado = document.getElementById("resultado");
-        resultado.textContent = data.amigo, data.intereses;
+        resultado.innerHTML = `
+      <div class="text-center">
+        <strong>${data.amigo}</strong><br>
+        <small class="text-muted">${data.intereses || "Sin intereses registrados"}</small>
+      </div>
+    `;
+
         resultado.classList.remove("animar");
-        void resultado.offsetWidth;
+        void resultado.offsetWidth; // reinicia animación
         resultado.classList.add("animar");
 
+        // ✅ MENSAJE PREMIUM CON SWAL
+        await Swal.fire({
+          title: "¡Tu amigo secreto es!",
+          html: `<strong>${data.amigo}</strong><br><small>${data.intereses || "Sin intereses registrados"}</small>`,
+          icon: "success",
+          confirmButtonText: "Perfecto"
+        });
+
+        // ✅ BLOQUEO DEL DISPOSITIVO
         localStorage.setItem("bloqueado", "true");
+
         pantalla("pantallaResultado");
 
       } catch (err) {
         console.error(err);
-        error.textContent = "No se pudo conectar al servidor";
+        Swal.fire({
+          icon: "error",
+          title: "Error de conexión",
+          text: "No se pudo conectar al servidor"
+        });
       }
     }
+
 
     function cerrarTurno() {
       document.getElementById("nombreInput").value = "";
@@ -200,7 +263,7 @@
     }
 
     function pantalla(id) {
-      ["pantallaInicio","pantallaIngreso","pantallaResultado","pantallaAdmin"]
+      ["pantallaInicio", "pantallaIngreso", "pantallaResultado", "pantallaAdmin"]
         .forEach(p => document.getElementById(p).style.display = "none");
 
       document.getElementById(id).style.display = "block";
@@ -216,55 +279,56 @@
       pantalla("pantallaInicio");
     }
 
-   async function resetearTodo() {
-    const confirmacion = await Swal.fire({
-      title: "¿Resetear sorteo?",
-      text: "Se borrarán todas las asignaciones",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Sí, resetear",
-      cancelButtonText: "Cancelar",
-      reverseButtons: true
-    });
+    async function resetearTodo() {
+      const confirmacion = await Swal.fire({
+        title: "¿Resetear sorteo?",
+        text: "Se borrarán todas las asignaciones",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Sí, resetear",
+        cancelButtonText: "Cancelar",
+        reverseButtons: true
+      });
 
-  if (!confirmacion.isConfirmed) return;
+      if (!confirmacion.isConfirmed) return;
 
-  try {
-    const res = await fetch(`${API_URL}/reset`, { 
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json" 
-      },
-      body: JSON.stringify({
-        clave: CLAVE_ADMIN   // ✅ SE ENVÍA LA CLAVE
-      })
-    });
+      try {
+        const res = await fetch(`${API_URL}/reset`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            clave: CLAVE_ADMIN   // ✅ SE ENVÍA LA CLAVE
+          })
+        });
 
-    const data = await res.json();
+        const data = await res.json();
 
-    if (!res.ok) {
-      Swal.fire("Error", data.error || "No autorizado", "error");      
-      return;
+        if (!res.ok) {
+          Swal.fire("Error", data.error || "No autorizado", "error");
+          return;
+        }
+
+        localStorage.removeItem("bloqueado");
+
+        Swal.fire({
+          title: "Sorteo reseteado",
+          text: "Todo volvió al estado inicial",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false
+        });
+        pantalla("pantallaInicio");
+
+      } catch (error) {
+        console.error(error);
+        alert("No se pudo resetear el sorteo");
+      }
     }
-
-    localStorage.removeItem("bloqueado");
-
-    Swal.fire({
-      title: "Sorteo reseteado",
-      text: "Todo volvió al estado inicial",
-      icon: "success",
-      timer: 2000,
-      showConfirmButton: false
-    });
-    pantalla("pantallaInicio");
-
-  } catch (error) {
-    console.error(error);
-    alert("No se pudo resetear el sorteo");
-  }
-}
 
   </script>
 
 </body>
+
 </html>
