@@ -108,7 +108,7 @@
     <div id="pantallaAdmin" class="fade" style="display:none;">
       <h6 class="text-center mb-3">Panel de administración</h6>
       <button class="btn btn-warning w-100 mb-2" onclick="resetearTodo()">Resetear sorteo</button>
-      <button class="btn btn-outline-secondary w-100" onclick="cerrarAdmin()">Cerrar</button>
+      <button class="btn btn-outline-close w-100" onclick="cerrarAdmin()">Cerrar</button>
     </div>
 
     <!-- CONSEJO -->
@@ -121,7 +121,7 @@
   <script>
     // ✅ API REAL DE RAILWAY
     const API_URL = "https://amigo-secreto-navidad-backend-production.up.railway.app";
-    const CLAVE_ADMIN = "12345"; 
+    const CLAVE_ADMIN = "software"; 
 
     async function iniciarSorteo() {
       if (localStorage.getItem("bloqueado") === "true") {
@@ -199,19 +199,37 @@
       pantalla("pantallaInicio");
     }
 
-    async function resetearTodo() {
-      if (!confirm("¿Seguro que deseas borrar el sorteo?")) return;
+   async function resetearTodo() {
+  if (!confirm("¿Seguro que deseas borrar el sorteo?")) return;
 
-      try {
-        const res = await fetch(`${API_URL}/reset`, { method: "POST" });
-        const data = await res.json();
-        alert(data.mensaje || "Sorteo reseteado");
-        localStorage.removeItem("bloqueado");
-        pantalla("pantallaInicio");
-      } catch (error) {
-        alert("No se pudo resetear el sorteo");
-      }
+  try {
+    const res = await fetch(`${API_URL}/reset`, { 
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({
+        clave: CLAVE_ADMIN   // ✅ SE ENVÍA LA CLAVE
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "No autorizado");
+      return;
     }
+
+    alert(data.mensaje || "Sorteo reseteado correctamente");
+    localStorage.removeItem("bloqueado");
+    pantalla("pantallaInicio");
+
+  } catch (error) {
+    console.error(error);
+    alert("No se pudo resetear el sorteo");
+  }
+}
+
   </script>
 
 </body>
