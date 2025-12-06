@@ -148,6 +148,12 @@
       <button class="btn btn-outline-dark w-100 mt-4" onclick="cerrarTurno()">Cerrar turno</button>
     </div>
 
+    <!-- Botón para ver a quien me tocó -->
+    <button class="btn btn-outline-success w-100 mt-2" onclick="verHistorial()">
+      Ver historial
+    </button>
+
+
     <!-- ADMIN PANEL -->
     <div id="pantallaAdmin" class="fade" style="display:none;">
       <h6 class="text-center mb-3">Panel de administración</h6>
@@ -161,6 +167,8 @@
     </div>
 
   </div>
+
+  <!-- PARTE DE LOS SCRIPTS-->
 
   <script>
     // ✅ API REAL DE RAILWAY
@@ -261,6 +269,50 @@
       document.getElementById("error").textContent = "";
       pantalla("pantallaInicio");
     }
+    async function verHistorial() {
+      const { value: nombre } = await Swal.fire({
+        title: "Ver historial",
+        input: "text",
+        inputLabel: "Escribe tu nombre",
+        inputPlaceholder: "Tu nombre",
+        showCancelButton: true,
+        confirmButtonText: "Ver",
+        cancelButtonText: "Cancelar"
+      });
+
+      if (!nombre) return;
+
+      try {
+        const res = await fetch(`${API_URL}/historial`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ nombre })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          Swal.fire("Error", data.error || "No se pudo consultar el historial", "error");
+          return;
+        }
+
+        Swal.fire({
+          title: "Tu amigo secreto",
+          html: `
+        <strong>${data.amigo}</strong><br><br>
+        <small><b>Intereses actualizados:</b></small><br>
+        <em>${data.intereses || "Aún no ha escrito sus intereses"}</em>
+      `,
+          icon: "info"
+        });
+
+      } catch (error) {
+        Swal.fire("Error", "No se pudo conectar al servidor", "error");
+      }
+    }
+    localStorage.setItem("miNombre", nombre);
+
+
 
     function pantalla(id) {
       ["pantallaInicio", "pantallaIngreso", "pantallaResultado", "pantallaAdmin"]
