@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>Amigo Secreto</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+  <!--Como no estamos usando npm podemos simplemente llamar a SweetAlert con la siguiente linea-->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
@@ -70,6 +71,11 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+    .swal2-popup {
+      border-radius: 16px !important;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
   </style>
 </head>
 
@@ -131,7 +137,11 @@
 
     async function iniciarSorteo() {
       if (localStorage.getItem("bloqueado") === "true") {
-        alert("Este dispositivo ya participó");
+        Swal.fire({
+          icon: "info",
+          title: "Ya participaste",
+          text: "Este dispositivo ya usó su turno",
+        });      
         return;
       }
 
@@ -139,7 +149,7 @@
         await fetch(`${API_URL}/sorteo`, { method: "POST" });
         pantalla("pantallaIngreso");
       } catch (error) {
-        alert("No se pudo contactar con el servidor");
+        Swal.fire("Error", "No se pudo contactar con el servidor", "error");
       }
     }
 
@@ -207,7 +217,17 @@
     }
 
    async function resetearTodo() {
-  if (!confirm("¿Seguro que deseas borrar el sorteo?")) return;
+    const confirmacion = await Swal.fire({
+      title: "¿Resetear sorteo?",
+      text: "Se borrarán todas las asignaciones",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Sí, resetear",
+      cancelButtonText: "Cancelar",
+      reverseButtons: true
+    });
+
+  if (!confirmacion.isConfirmed) return;
 
   try {
     const res = await fetch(`${API_URL}/reset`, { 
@@ -223,12 +243,19 @@
     const data = await res.json();
 
     if (!res.ok) {
-      alert(data.error || "No autorizado");
+      Swal.fire("Error", data.error || "No autorizado", "error");      
       return;
     }
 
-    alert(data.mensaje || "Sorteo reseteado correctamente");
     localStorage.removeItem("bloqueado");
+
+    Swal.fire({
+      title: "Sorteo reseteado",
+      text: "Todo volvió al estado inicial",
+      icon: "success",
+      timer: 2000,
+      showConfirmButton: false
+    });
     pantalla("pantallaInicio");
 
   } catch (error) {
