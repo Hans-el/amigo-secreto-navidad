@@ -257,8 +257,8 @@
             return;
           }
 
-          // Guardar token en sessionStorage
-          sessionStorage.setItem("tokenAmigoSecreto", data.token);
+          // Guardar token en localStorage
+          localStorage.setItem("tokenAmigoSecreto", data.token);
 
           // Mostrar resultado
           const resultado = document.getElementById("resultado");
@@ -299,7 +299,7 @@
       }
 
       async function verHistorial() {
-        const token = sessionStorage.getItem("tokenAmigoSecreto");
+        const token = localStorage.getItem("tokenAmigoSecreto");
         if (!token) {
           Swal.fire("Error", "Aún no participaste o tu sesión expiró", "error");
           return;
