@@ -121,10 +121,13 @@
   </head>
 
   <body class="d-flex align-items-center justify-content-center">
-    <div class="card p-4 shadow" style="width: 100%; max-width: 420px">
+    <div class="card p-4 shadow" style="width: 80%; max-width: 420px">
       <!-- ADMIN -->
       <div class="text-end mb-2">
-        <button class="btn btn-sm btn-outline-danger" onclick="mostrarAdmin()">
+        <button
+          class="btn btn-sm fw-semibold btn-outline-danger"
+          onclick="mostrarAdmin()"
+        >
           Admin
         </button>
       </div>
@@ -136,7 +139,7 @@
           Ingresa tu nombre y descubre tu amigo secreto.
         </p>
         <button
-          class="btn btn-success fw-semibold w-100"
+          class="btn btn-outline-success fw-semibold w-100 mt-3"
           onclick="iniciarSorteo()"
         >
           Participar
@@ -145,23 +148,25 @@
 
       <!-- INGRESO -->
       <div id="pantallaIngreso" class="fade" style="display: none">
-        <h6 class="text-center mb-3">Escribe tu nombre</h6>
+        <h6 class="text-center mb-3">Tus datos</h6>
         <input
           type="text"
           id="nombreInput"
           class="form-control mb-3"
-          placeholder="Tu nombre"
+          placeholder="Tu primer nombre"
         />
         <textarea
           id="interesesInput"
           class="form-control mb-3"
           rows="3"
-          placeholder="Escribe tus gustos, hobbies, colores favoritos, etc..."
+          placeholder="Tus intereses, gustos o pistas para tu obsequio"
         ></textarea>
-        <button class="btn btn-secondary w-100" onclick="obtenerAmigo()">
-          Ver mi amigo secreto
+        <button
+          class="btn btn-outline-success fw-semibold w-100"
+          onclick="obtenerAmigo()"
+        >
+          Descubrir mi amigo secreto
         </button>
-        <p class="text-danger text-center mt-2" id="error"></p>
       </div>
 
       <!-- RESULTADO -->
@@ -175,25 +180,31 @@
 
       <!-- Botón para ver a quien me tocó -->
       <button
-        class="btn btn-outline-secondary fw-semibold mb-3 w-100 mt-2"
+        class="btn btn-outline-dark fw-semibold mb-3 w-100 mt-3"
         onclick="verHistorial()"
       >
-        Ver historial
+        Historial
       </button>
 
       <!-- ADMIN PANEL -->
       <div id="pantallaAdmin" class="fade" style="display: none">
         <h6 class="text-center mb-3">Panel de administración</h6>
-        <button class="btn btn-danger w-100 mb-2" onclick="resetearTodo()">
+        <button
+          class="btn btn-warning fw-semibold w-100 mb-2"
+          onclick="resetearTodo()"
+        >
           Resetear sorteo
         </button>
-        <button class="btn btn-outline-success w-100" onclick="cerrarAdmin()">
+        <button
+          class="btn btn-outline-danger fw-semibold w-100"
+          onclick="cerrarAdmin()"
+        >
           Cerrar
         </button>
       </div>
 
       <div class="alert alert-light mt-4 fade" style="font-size: 0.9rem">
-        Consejo: escribe solo tu primer nombre 😉
+        Requisito: Escribe solo tu primer nombre 😉
       </div>
     </div>
 
@@ -281,6 +292,10 @@
             text: "No se pudo conectar al servidor",
           });
         }
+      }
+
+      async function cerrarTurno() {
+        pantalla("pantallaInicio");
       }
 
       async function verHistorial() {
